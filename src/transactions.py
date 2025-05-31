@@ -2,43 +2,67 @@ import requests_cache
 from dataclasses import dataclass
 from typing import Optional, List, Dict, Any
 
-@dataclass
-class AddressInfo:
-    block_number_balance_updated_at: int
-    coin_balance: str
-    creation_transaction_hash: Optional[str]
-    creator_address_hash: Optional[str]
-    ens_domain_name: Optional[str]
-    exchange_rate: str
-    has_beacon_chain_withdrawals: bool
-    has_logs: bool
-    has_token_transfers: bool
-    has_tokens: bool
-    has_validated_blocks: bool
-    hash: str
-    implementations: List[Any]
-    is_contract: bool
-    is_scam: bool
-    is_verified: bool
-    metadata: Optional[Dict[str, Any]]
-    name: Optional[str]
-    private_tags: List[Any]
-    proxy_type: Optional[str]
-    public_tags: List[Any]
-    token: Optional[Any]
-    watchlist_address_id: Optional[int]
-    watchlist_names: List[str]
+CHAINS = [
+    "eth",
+    "base",
+    "optimism",
+    "arbitrum",
+    "polygon",
+    "gnosis",
+    "scroll",
+    "celo",
+    "eth-sepolia",
+    "eth-goerli",
+    "base-sepolia",
+    "optimism-sepolia",
+    "arbitrum-sepolia",
+    "scroll-sepolia",
+    "gnosis-chiado",
+    "celo-alfajores",
+    "celo-baklava",
+]
 
-def get_address_info(session: requests_cache.CachedSession, address: str) -> AddressInfo:
-    url = f"https://eth.blockscout.com/api/v2/addresses/{address}"
-    headers = {
-        "accept": "application/json"
-    }
-    
-    response = session.get(url, headers=headers)
-    data = response.json()
-    return AddressInfo(**data)
+
+def get_chain_transactions(session: requests_cache.CachedSession, address: str,
+                           chain: str) -> List[dict]:
+    url = f"https://{chain}.blockscout.com/api/v2/addresses/{address}/transactions"
+    params = {}
+    items = []
+    for _ in range(10):
+        response = session.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        items.extend(data["items"])
+        params = data["next_page_params"]
+        if params is None:
+            break
+    items = [
+        item for item in items
+        if not item["from"]["is_contract"] and not item["to"]["is_contract"]
+    ]
+    items = [{
+        "from": item["from"]["hash"],
+        "from_ens": item["from"]["ens_domain_name"],
+        "to": item["to"]["hash"],
+        "to_ens": item["to"]["ens_domain_name"],
+        "chain": chain,
+        "timestamp": item["timestamp"],
+    } for item in items]
+    return items
+
+
+def get_transactions(session: requests_cache.CachedSession,
+                     address: str) -> List[dict]:
+    transactions = []
+    for chain in CHAINS:
+        transactions.extend(get_chain_transactions(session, address, chain))
+    return transactions
+
 
 if __name__ == "__main__":
+    import json
+    from datetime import timedelta
+    session = requests_cache.CachedSession('cache')
     address = "0x53C61cfb8128ad59244E8c1D26109252ACe23d14"
-    print(get_address_info(address))
+    transactions = get_transactions(session, address)
+    print(json.dumps(transactions, indent=4))

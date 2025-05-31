@@ -38,10 +38,9 @@ def other_ens_owned_by(session: requests_cache.CachedSession,
     }
     response = session.get(url, params=params)
     data = response.json()["items"]
-    
+
     other_ens_owned = []
     for item in data:
-        print(item)
         resolved_address = item.get("resolved_address", {})
         if not resolved_address or resolved_address.get("hash") != address:
             other_ens_owned.append({
@@ -50,13 +49,16 @@ def other_ens_owned_by(session: requests_cache.CachedSession,
             })
     return other_ens_owned
 
-
-def domain_events(session: requests_cache.CachedSession,
-                domain: str):
+def domain_events(session: requests_cache.CachedSession, domain: str):
     url = f"https://bens.services.blockscout.com/api/v1/1/domains/{domain}/events"
     response = session.get(url)
-    data = response.json()
-    return data
+    data = response.json()["items"]
+    connected_events = set()
+    for event in data:
+        action = event["action"]
+        if action != "atomicMatch_" and action != "migrateAll":
+            connected_events.add(event["from_address"]["hash"])
+    return list(connected_events)
 
 if __name__ == "__main__":
     import json
