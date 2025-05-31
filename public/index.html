@@ -9,11 +9,27 @@
     <script src="network.js"></script>
     <script src="time-series.js"></script>
     <style>
+        body {
+            background-color: #efe1d4;
+            margin: 0;
+            padding: 0;
+        }
         .container {
             max-width: 1000px;
             margin: 40px auto;
             padding: 20px;
-            background-color: white;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .banner {
+            height: 500px;
+            width: 100%;
+            background-color: #efe1d4;
+            background-image: url('logo.png');
+            background-size: 500px;
+            background-position: center;
+            background-repeat: no-repeat;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
@@ -44,6 +60,7 @@
     </style>
 </head>
 <body>
+    <div class="banner"></div>
     <div class="container">
         <form id="addressForm" class="input-form">
             <input 
@@ -57,12 +74,29 @@
         <div id="timezoneInfo"></div>
         <canvas id="timeChart"></canvas>
         <div id="networkChart" style="height: 600px; width: 100%;"></div>
+        <div id="networkInfo"></div>
     </div>
 
     <script>
-        document.getElementById('addressForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const address = document.getElementById('addressInput').value;
+        // Function to update URL with address parameter
+        function updateUrlWithAddress(address) {
+            const url = new URL(window.location.href);
+            if (address) {
+                url.searchParams.set('address', address);
+            } else {
+                url.searchParams.delete('address');
+            }
+            window.history.replaceState({}, '', url);
+        }
+
+        // Function to get address from URL
+        function getAddressFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('address');
+        }
+
+        // Function to handle form submission
+        async function handleSubmit(address) {
             const submitButton = document.getElementById('submitButton');
             
             submitButton.disabled = true;
@@ -79,6 +113,34 @@
                 submitButton.disabled = false;
                 submitButton.textContent = 'Submit';
             }
+        }
+
+        // Set up event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const addressInput = document.getElementById('addressInput');
+            const addressForm = document.getElementById('addressForm');
+            const submitButton = document.getElementById('submitButton');
+
+            // Check for address in URL on page load
+            const initialAddress = getAddressFromUrl();
+            if (initialAddress) {
+                addressInput.value = initialAddress;
+                handleSubmit(initialAddress);
+            }
+
+            // Update URL when input changes
+            addressInput.addEventListener('input', (e) => {
+                updateUrlWithAddress(e.target.value);
+            });
+
+            // Handle form submission
+            addressForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const address = addressInput.value;
+                submitButton.textContent = 'Loading...';
+                await handleSubmit(address);
+                submitButton.textContent = 'Submit';
+            });
         });
     </script>
 </body>

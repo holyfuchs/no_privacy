@@ -5,24 +5,14 @@ function destroyNetworkGraph() {
         networkChart.destroy();
     }
     document.getElementById("networkChart").innerHTML = "";
+    document.getElementById("networkInfo").innerHTML = "";
 }
 
-async function createNetworkGraph(chart, address) {
-    var nodes = [
-        { id: 0, label: "Myriel\nasd", group: 1, size: 20 },
-        { id: 1, label: "Napoleon", group: 2, size: 10 },
-        { id: 2, label: "Mlle.Baptistine", group: 2, size: 10 },
-    ];
-    var edges = [
-        { from: 1, to: 0, length: 100, width: 1 },
-        { from: 2, to: 0, length: 10, width: 10 }
-    ];
-    
+async function createNetworkGraph(address) {
+    const response = await fetch(`/api/graph/${address}`);
+    const data = await response.json();
     var container = document.getElementById("networkChart");
-    var data = {
-        nodes: nodes,
-        edges: edges,
-    };
+    
     var options = {
         nodes: {
             shape: "dot",
@@ -42,4 +32,32 @@ async function createNetworkGraph(chart, address) {
         },
     };
     networkChart = new vis.Network(container, data, options);
+
+    var info = document.getElementById("networkInfo");
+    
+    let htmlContent = "<h2>Network Info</h2>";    
+    const sortedEdges = [...data.edges].sort((a, b) => b.width - a.width);
+    
+    // Create table for edge information
+    htmlContent += "<h3>Edge Information</h3>";
+    htmlContent += "<table style='border-collapse: collapse; width: 100%; margin-top: 20px;'>";
+    htmlContent += "<thead><tr style='background-color: #f2f2f2;'>";
+    htmlContent += "<th style='padding: 12px; text-align: left; border: 1px solid #ddd;'>Strength</th>";
+    htmlContent += "<th style='padding: 12px; text-align: left; border: 1px solid #ddd;'>Label</th>";
+    htmlContent += "<th style='padding: 12px; text-align: left; border: 1px solid #ddd;'>Address</th>";
+    htmlContent += "</tr></thead><tbody>";
+    
+    sortedEdges.forEach(edge => {
+        const fromNode = data.nodes.find(node => node.id === edge.from);
+        const toNode = data.nodes.find(node => node.id === edge.to);
+        htmlContent += `<tr style='border: 1px solid #ddd;'>
+            <td style='padding: 12px; border: 1px solid #ddd;'>${edge.width}</td>
+            <td style='padding: 12px; border: 1px solid #ddd;'>${toNode.label}</td>
+            <td style='padding: 12px; border: 1px solid #ddd;'><a href="?address=${toNode.address}">${toNode.address}</a></td>
+        </tr>`;
+    });
+    
+    htmlContent += "</tbody></table>";
+    
+    info.innerHTML = htmlContent;
 }

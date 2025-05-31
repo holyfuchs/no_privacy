@@ -13,18 +13,24 @@ def address_from_ens(session: requests_cache.CachedSession,
 
 def ens_from_address(session: requests_cache.CachedSession,
                      address: str) -> List[str]:
-    url = f"https://bens.services.blockscout.com/api/v1/1/addresses:lookup"
-    params = {
-        "address": address,
-        "only_active": "false",
-        "resolved_to": "true",
-        "owned_by": "false",
-    }
-    response = session.get(url, params=params)
-    data = response.json()["items"]
-    if len(data) == 0:
+    try:
+        url = f"https://bens.services.blockscout.com/api/v1/1/addresses:lookup"
+        params = {
+            "address": address,
+            "only_active": "false",
+            "resolved_to": "true",
+            "owned_by": "false",
+        }
+        response = session.get(url, params=params)
+        response.raise_for_status()
+        print(response.json())
+        data = response.json()["items"]
+        if len(data) == 0:
+            return []
+        return [item["name"] for item in data]
+    except Exception as e:
+        print(f"Error fetching ENS from address {address}: {e}")
         return []
-    return [item["name"] for item in data]
 
 
 def other_ens_owned_by(session: requests_cache.CachedSession,
@@ -52,10 +58,8 @@ def other_ens_owned_by(session: requests_cache.CachedSession,
 def domain_events(session: requests_cache.CachedSession, domain: str):
     try:
         url = f"https://bens.services.blockscout.com/api/v1/1/domains/{domain}/events"
-        print(url)
         response = session.get(url)
         data = response.json()["items"]
-        print(data)
         connected_events = set()
         for event in data:
             action = event["action"]
