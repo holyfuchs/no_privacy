@@ -6,6 +6,6 @@ COPY ./pyproject.toml ./uv.lock ./
 RUN uv sync --locked --no-install-project --no-dev
 
 COPY . .
-EXPOSE 4321
+EXPOSE 8000
 
-CMD ["uv", "run", "--no-dev", "unvicorn", "main:app"]
+CMD ["uv", "run", "--no-dev", "uvicorn", "--host", "0.0.0.0", "--port", "8000", "main:app"]
