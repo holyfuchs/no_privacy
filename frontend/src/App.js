@@ -23,26 +23,24 @@ ChartJS.register(
 );
 
 function App() {
+  const [address, setAddress] = useState('');
   const [timeSeriesData, setTimeSeriesData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/time-series');
-        setTimeSeriesData(response.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/time-data/${address}`);
+      setTimeSeriesData(response.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchData();
-  }, []);
-
-  if (!timeSeriesData) {
-    return <div>Loading...</div>;
-  }
-
-  const chartData = {
+  const chartData = timeSeriesData ? {
     labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
     datasets: [
       {
@@ -53,7 +51,7 @@ function App() {
         tension: 0.1,
       },
     ],
-  };
+  } : null;
 
   const options = {
     responsive: true,
@@ -63,7 +61,7 @@ function App() {
       },
       title: {
         display: true,
-        text: `Transaction Activity by Hour (${timeSeriesData.timezone})`,
+        text: timeSeriesData ? `Transaction Activity by Hour (UTC)` : 'Transaction Activity',
       },
     },
     scales: {
@@ -92,7 +90,39 @@ function App() {
       borderRadius: '10px',
       boxShadow: '0 0 10px rgba(0,0,0,0.1)'
     }}>
-      <Line data={chartData} options={options} />
+      <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+        <input
+          type="text"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Enter contract address or ENS name"
+          style={{
+            width: '100%',
+            padding: '10px',
+            fontSize: '16px',
+            borderRadius: '5px',
+            border: '1px solid #ccc',
+            marginBottom: '10px'
+          }}
+        />
+        <button 
+          type="submit"
+          disabled={isLoading}
+          style={{
+            padding: '10px 20px',
+            fontSize: '16px',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          {isLoading ? 'Loading...' : 'Submit'}
+        </button>
+      </form>
+      {timeSeriesData && <h2>Estimated Time Zone: {timeSeriesData.timezone}</h2>}
+      {timeSeriesData && <Line data={chartData} options={options} />}
     </div>
   );
 }

@@ -12,12 +12,11 @@ from typing import List, Tuple, Dict
 from flask_cors import CORS
 import os
 
-app = Flask(__name__, static_folder='../frontend/build')
+app = Flask(__name__, static_folder='../public')
 CORS(app)
 session = requests_cache.CachedSession('cache',
                                      expire_after=timedelta(days=3))
 
-# INPUT = "0x71B5b8Ec4D724849E76954A1475930dcE9c4B994"
 INPUT = "kartik.eth"
 
 def analyse_address(session: requests_cache.CachedSession, input: str):
@@ -40,16 +39,6 @@ def analyse_address(session: requests_cache.CachedSession, input: str):
         "transaction_counts": transaction_counts,
     }
 
-# Serve React App
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        print(app.static_folder)
-        return send_from_directory(app.static_folder, 'index.html')
-
 @app.route('/api/time-data/<address>')
 def time_data(address):
     print(address)
@@ -64,6 +53,16 @@ def time_data(address):
 def graph_data(address):
     result = analyse_address(session, address)
     return jsonify(result["transaction_counts"])
+    
+# Serve Frontend
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Activity Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="network.js"></script>
+    <script src="time-series.js"></script>
+    <style>
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .input-form {
+            margin-bottom: 20px;
+        }
+        .address-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .submit-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="addressForm" class="input-form">
+            <input 
+                type="text" 
+                id="addressInput" 
+                class="address-input" 
+                placeholder="Enter contract address or ENS name"
+            >
+            <button type="submit" id="submitButton" class="submit-button">Submit</button>
+        </form>
+        <div id="timezoneInfo"></div>
+        <canvas id="timeChart"></canvas>
+        <div id="networkChart" style="height: 600px; width: 100%;"></div>
+    </div>
+
+    <script>
+        document.getElementById('addressForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const address = document.getElementById('addressInput').value;
+            const submitButton = document.getElementById('submitButton');
+            
+            submitButton.disabled = true;
+            submitButton.textContent = 'Loading...';
+
+            try {
+                destroyTimeSeriesGraph();
+                destroyNetworkGraph();
+                await createTimeSeriesGraph(address);
+                await createNetworkGraph(address);
+            } catch (error) {
+                console.error('Error:', error);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit';
+            }
+        });
+    </script>
+</body>
+</html>
