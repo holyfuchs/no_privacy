@@ -9,13 +9,13 @@ function destroyNetworkGraph() {
 
 async function createNetworkGraph(chart, address) {
     var nodes = [
-        { id: 0, label: "Myriel", group: 1 },
-        { id: 1, label: "Napoleon", group: 1 },
-        { id: 2, label: "Mlle.Baptistine", group: 1 },
+        { id: 0, label: "Myriel\nasd", group: 1, size: 20 },
+        { id: 1, label: "Napoleon", group: 2, size: 10 },
+        { id: 2, label: "Mlle.Baptistine", group: 2, size: 10 },
     ];
     var edges = [
-        { from: 1, to: 0, length: 100 },
-        { from: 2, to: 0 }
+        { from: 1, to: 0, length: 100, width: 1 },
+        { from: 2, to: 0, length: 10, width: 10 }
     ];
     
     var container = document.getElementById("networkChart");

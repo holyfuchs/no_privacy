@@ -1,7 +1,7 @@
 from typing import List, Tuple, Dict
 import requests_cache
-from ens import address_from_ens, ens_from_address, other_ens_owned_by, domain_events
-from transactions import get_transactions
+from .ens import address_from_ens, ens_from_address, other_ens_owned_by, domain_events
+from .transactions import get_transactions
 
 def create_graph(session: requests_cache.CachedSession, input: str):
     if input.endswith(".eth"):

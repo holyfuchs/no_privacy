@@ -2,15 +2,16 @@ import requests_cache
 from datetime import timedelta
 import json
 from flask import Flask, jsonify, send_from_directory
-from info import get_address_info
-from ens import address_from_ens, ens_from_address, other_ens_owned_by, domain_events
-from transactions import get_transactions
-from tokens import get_token_transfers
-from time_series import get_time_series
-from graph import count_transactions_by_address
 from typing import List, Tuple, Dict
 from flask_cors import CORS
 import os
+
+from src.info import get_address_info
+from src.ens import address_from_ens, ens_from_address, other_ens_owned_by, domain_events
+from src.transactions import get_transactions
+from src.tokens import get_token_transfers
+from src.time_series import get_time_series
+from src.graph import count_transactions_by_address
 
 app = Flask(__name__, static_folder='../public')
 CORS(app)
@@ -65,4 +66,4 @@ def serve(path):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=4321)

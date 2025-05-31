@@ -50,15 +50,24 @@ def other_ens_owned_by(session: requests_cache.CachedSession,
     return other_ens_owned
 
 def domain_events(session: requests_cache.CachedSession, domain: str):
-    url = f"https://bens.services.blockscout.com/api/v1/1/domains/{domain}/events"
-    response = session.get(url)
-    data = response.json()["items"]
-    connected_events = set()
-    for event in data:
-        action = event["action"]
-        if action != "atomicMatch_" and action != "migrateAll":
-            connected_events.add(event["from_address"]["hash"])
-    return list(connected_events)
+    try:
+        url = f"https://bens.services.blockscout.com/api/v1/1/domains/{domain}/events"
+        print(url)
+        response = session.get(url)
+        data = response.json()["items"]
+        print(data)
+        connected_events = set()
+        for event in data:
+            action = event["action"]
+            if "egister" in action:
+                break
+            if action != "atomicMatch_" and action != "migrateAll" and not action.startswith("0x"):
+                connected_events.add(event["from_address"]["hash"])
+        return list(connected_events)
+    except Exception as e:
+        print(f"Error fetching domain events for {domain}: {e}")
+        return []
+
 
 if __name__ == "__main__":
     import json
