@@ -5,5 +5,17 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "flask>=3.1.1",
+    "flask-cors>=6.0.0",
+    "nbformat>=5.10.4",
+    "numpy>=2.2.6",
+    "pandas>=2.2.3",
+    "plotly>=6.1.2",
     "requests-cache>=1.2.1",
+    "seaborn>=0.13.2",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
 ]
