@@ -4,6 +4,7 @@
 
 ![No Privacy Logo](logo.png)
 
+Showcase how even small information points can be 
 Gain insights into Ethereum addresses using on-chain data.
 
 ## Description
@@ -45,3 +46,63 @@ Data is sourced from the Blockscout API:
 Timestamps from user interactions help infer time zones.  
 Connections between wallets are estimated by weighting interaction patterns.
 
+## Potential Data points
+
+```mermaid
+mindmap
+  root((Personal Data))
+    Transaction Patterns
+      Time of Activity
+        Time Zone Inference
+        Daily/Weekly Patterns
+      Transaction Frequency
+        Active Hours
+        Usage Patterns
+      Transaction Amounts
+        Spending Habits
+        Wealth Indicators
+    Wallet Connections
+      Direct Transfers
+        Regular Interactions
+        One-time Transactions
+      Contract Interactions
+        Common DApps
+        DeFi Activity
+    Token Holdings
+      ERC20 Tokens
+        Investment Portfolio
+        Token Preferences
+      NFTs
+        Collectibles
+        Digital Assets
+      Staking Positions
+        Investment Strategy
+        Risk Profile
+    Contract Deployments
+      Smart Contract Types
+        DApp Development
+        Protocol Usage
+      Contract Interactions
+        Protocol Preferences
+        Technical Expertise
+    ENS Activity
+      Domain Registrations
+        Branding Choices
+        Project Names
+      Domain Renewals
+        Long-term Commitments
+        Project Lifespan
+      Domain Transfers
+        Project Changes
+        Ownership History
+    Network Analysis
+      Common Counterparties
+        Social Connections
+        Business Relationships
+      Protocol Usage
+        DeFi Preferences
+        Technical Stack
+      Cross-chain Activity
+        Multi-chain Presence
+        Chain Preferences
+```
