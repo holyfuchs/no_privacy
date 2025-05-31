@@ -8,4 +8,4 @@ RUN uv sync --locked --no-install-project --no-dev
 COPY . .
 EXPOSE 4321
 
-CMD ["uv", "run", "--no-dev", "uvicorn", "main:app"]
+CMD ["uv", "run", "--no-dev", "unvicorn", "main:app"]

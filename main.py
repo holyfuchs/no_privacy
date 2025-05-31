@@ -5,6 +5,7 @@ from flask import Flask, jsonify, send_from_directory
 from typing import List, Tuple, Dict
 from flask_cors import CORS
 import os
+from asgiref.wsgi import WsgiToAsgi
 
 from src.info import get_address_info
 from src.ens import address_from_ens, ens_from_address, other_ens_owned_by, domain_events
@@ -13,7 +14,7 @@ from src.tokens import get_token_transfers
 from src.time_series import get_time_series
 from src.graph import count_transactions_by_address
 
-app = Flask(__name__, static_folder='../public')
+app = Flask(__name__)
 CORS(app)
 session = requests_cache.CachedSession('cache',
                                      expire_after=timedelta(days=3))
@@ -59,11 +60,13 @@ def graph_data(address):
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
-        return send_from_directory(app.static_folder, path)
+    if path != "" and os.path.exists('public' + '/' + path):
+        return send_from_directory('public', path)
     else:
-        return send_from_directory(app.static_folder, 'index.html')
+        return send_from_directory('public', 'index.html')
 
 
 if __name__ == "__main__":
     app.run(debug=True, port=4321)
+
+app = WsgiToAsgi(app)
